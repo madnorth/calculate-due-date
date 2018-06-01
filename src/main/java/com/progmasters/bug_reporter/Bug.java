@@ -1,9 +1,9 @@
-package com.progmasters.due_date;
+package com.progmasters.bug_reporter;
 
 import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 
-public class DueDate {
+public class Bug {
     private LocalDateTime dueDate;
     private LocalDateTime notificationTime;
     private float turnaroundTimeInWorkingHour;
@@ -43,5 +43,9 @@ public class DueDate {
         int hour = notificationTime.getHour();
 
         return (hour >= 9 && hour < 16);
+    }
+
+    public boolean isValidTurnaroundTime() {
+        return (turnaroundTimeInWorkingHour > 0);
     }
 }
