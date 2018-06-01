@@ -80,5 +80,6 @@ public class BugTest {
         Assert.assertEquals("2018-06-05 09:06", bug.calculateDueDate(LocalDateTime.parse("2018-06-01 15:51", TIME_PATTERN), 9.25f).format(TIME_PATTERN));
         Assert.assertEquals("2018-06-01 16:51", bug.calculateDueDate(LocalDateTime.parse("2018-06-01 15:51", TIME_PATTERN), 1).format(TIME_PATTERN));
         Assert.assertEquals("2018-06-01 16:06", bug.calculateDueDate(LocalDateTime.parse("2018-06-01 15:51", TIME_PATTERN), 0.25f).format(TIME_PATTERN));
+        Assert.assertEquals("2018-07-06 15:51", bug.calculateDueDate(LocalDateTime.parse("2018-06-01 15:51", TIME_PATTERN), 200).format(TIME_PATTERN));
     }
 }

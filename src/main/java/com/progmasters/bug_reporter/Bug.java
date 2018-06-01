@@ -18,35 +18,26 @@ public class Bug {
         LocalDateTime dueDate;
 
         if (isWorkingDay(notificationTime) && isWorkingHour(notificationTime) && isValidTurnaroundTime(turnaroundTimeInWorkingHour)) {
-            int days = getWorkingDays(turnaroundTimeInWorkingHour);
-            float workingHour = turnaroundTimeInWorkingHour - days * 8;
-            int minutes = (int) (workingHour * 60);
-
             LocalDate thisDay = notificationTime.toLocalDate();
+            int workingDays = getWorkingDays(turnaroundTimeInWorkingHour);
+            int plusWeekendsDays = (workingDays / 5) * 2;
+            float workingHour = turnaroundTimeInWorkingHour - workingDays * 8;
 
+            int minutes = (int) (workingHour * 60);
             long minutesUntilEndOfWorkingTime = notificationTime.until(LocalDateTime.of(thisDay, END_OF_WORKING_TIME), ChronoUnit.MINUTES);
 
-            LocalDateTime tempDueDate;
             if (minutes > minutesUntilEndOfWorkingTime) {
                 long plusMinutesOnNextWorkingDay = minutes - minutesUntilEndOfWorkingTime;
                 if (notificationTime.getDayOfWeek().getValue() == LAST_WORKING_DAY.getValue()) {
-                    tempDueDate = LocalDateTime.of(thisDay.plusDays(3 + days), BEGINNING_OF_WORKING_TIME.plusMinutes(plusMinutesOnNextWorkingDay));
+                    dueDate = LocalDateTime.of(thisDay.plusDays(3 + workingDays + plusWeekendsDays), BEGINNING_OF_WORKING_TIME.plusMinutes(plusMinutesOnNextWorkingDay));
                 } else {
-                    tempDueDate = LocalDateTime.of(thisDay.plusDays(1 + days), BEGINNING_OF_WORKING_TIME.plusMinutes(plusMinutesOnNextWorkingDay));
+                    dueDate = LocalDateTime.of(thisDay.plusDays(1 + workingDays + plusWeekendsDays), BEGINNING_OF_WORKING_TIME.plusMinutes(plusMinutesOnNextWorkingDay));
                 }
             } else {
-                tempDueDate = notificationTime.plusMinutes(minutes).plusDays(days);
+                dueDate = notificationTime.plusMinutes(minutes).plusDays(workingDays + plusWeekendsDays);
             }
-
-            if (tempDueDate.getDayOfWeek().getValue() > LAST_WORKING_DAY.getValue()) {
-                int plusDays = 8 - tempDueDate.getDayOfWeek().getValue();
-                dueDate = tempDueDate.plusDays(plusDays);
-            } else {
-                dueDate = tempDueDate;
-            }
-
         } else {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("Invalid date or turnaround time!");
         }
 
         return dueDate;
