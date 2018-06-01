@@ -38,4 +38,10 @@ public class DueDate {
 
         return (numericValueOfDay >= 1 && numericValueOfDay <= 5);
     }
+
+    public boolean isWorkingHour() {
+        int hour = notificationTime.getHour();
+
+        return (hour >= 9 && hour < 16);
+    }
 }
