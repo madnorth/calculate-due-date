@@ -73,4 +73,16 @@ public class BugTest {
     public void testIfCalculateDueDateGivenInvalidTime() {
         bug.calculateDueDate(LocalDateTime.parse("2018-05-26 11:11", TIME_PATTERN), 2.0f);
     }
+
+    @Test
+    public void testCalculateWorkingDaysFromTurnaroundTime() {
+        bug.setTurnaroundTimeInWorkingHour(16.0f);
+        Assert.assertEquals(2, bug.getWorkingDays());
+    }
+
+    @Test
+    public void testCalculateDueDate() {
+        String result = bug.calculateDueDate(LocalDateTime.parse("2018-05-29 14:12", TIME_PATTERN), 16).format(TIME_PATTERN);
+        Assert.assertEquals("2018-05-31 14:12", result);
+    }
 }
