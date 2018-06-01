@@ -48,4 +48,17 @@ public class Bug {
     public boolean isValidTurnaroundTime() {
         return (turnaroundTimeInWorkingHour > 0);
     }
+
+    public LocalDateTime calculateDueDate(LocalDateTime notificationTime, float turnaroundTimeInWorkingHour) {
+        this.notificationTime = notificationTime;
+        this.turnaroundTimeInWorkingHour = turnaroundTimeInWorkingHour;
+
+        if (isWorkingDay() && isWorkingHour() && isValidTurnaroundTime()) {
+
+        } else {
+            throw new IllegalArgumentException();
+        }
+
+        return null;
+    }
 }

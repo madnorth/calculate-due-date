@@ -11,63 +11,66 @@ public class BugTest {
 
     private static final DateTimeFormatter TIME_PATTERN = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
-    private Bug workDayBug;
-    private Bug workDayAt5PMBug;
+    private Bug bug;
     private Bug workDayAt9AMBug;
 
     @Before
     public void init() {
-        workDayBug = new Bug();
-        workDayAt5PMBug = new Bug();
+        bug = new Bug();
         workDayAt9AMBug = new Bug();
     }
 
     @Test
     public void testIfDateBetweenMondayAndFriday() {
-        workDayBug.setNotificationTime(LocalDateTime.parse("2018-06-01 11:11", TIME_PATTERN));
-        Assert.assertTrue(workDayBug.isWorkingDay());
+        bug.setNotificationTime(LocalDateTime.parse("2018-06-01 11:11", TIME_PATTERN));
+        Assert.assertTrue(bug.isWorkingDay());
     }
 
     @Test
     public void testIfDateNotBetweenMondayAndFriday() {
-        Bug weekend = new Bug();
-        weekend.setNotificationTime(LocalDateTime.parse("2018-05-26 11:11", TIME_PATTERN));
-        Assert.assertFalse(weekend.isWorkingDay());
+        bug.setNotificationTime(LocalDateTime.parse("2018-05-26 11:11", TIME_PATTERN));
+        Assert.assertFalse(bug.isWorkingDay());
     }
 
     @Test
     public void testIfTimeBetween9AMAnd5PM() {
-        workDayBug.setNotificationTime(LocalDateTime.parse("2018-06-01 11:11", TIME_PATTERN));
+        bug.setNotificationTime(LocalDateTime.parse("2018-06-01 11:11", TIME_PATTERN));
         workDayAt9AMBug.setNotificationTime(LocalDateTime.parse("2018-06-01 09:00", TIME_PATTERN));
-        Assert.assertTrue(workDayBug.isWorkingHour());
+        Assert.assertTrue(bug.isWorkingHour());
         Assert.assertTrue(workDayAt9AMBug.isWorkingHour());
     }
 
     @Test
     public void testIfTimeNotBetween9AMAnd5PM() {
-        workDayAt5PMBug.setNotificationTime(LocalDateTime.parse("2018-06-01 17:00", TIME_PATTERN));
-        Assert.assertFalse(workDayAt5PMBug.isWorkingHour());
+        bug.setNotificationTime(LocalDateTime.parse("2018-06-01 17:00", TIME_PATTERN));
+        Assert.assertFalse(bug.isWorkingHour());
     }
 
     @Test
     public void testIfTurnaroundTimeGreaterThanZero() {
-        workDayBug.setTurnaroundTimeInWorkingHour(12);
-        Assert.assertTrue(workDayBug.isValidTurnaroundTime());
+        bug.setTurnaroundTimeInWorkingHour(12.0f);
+        Assert.assertTrue(bug.isValidTurnaroundTime());
     }
 
     @Test
     public void testIfTurnaroundTimeIsZero() {
-        workDayBug.setTurnaroundTimeInWorkingHour(0);
-        Assert.assertFalse(workDayBug.isValidTurnaroundTime());
+        bug.setTurnaroundTimeInWorkingHour(0.0f);
+        Assert.assertFalse(bug.isValidTurnaroundTime());
     }
 
     @Test
     public void testIfTurnaroundTimeIsNegative() {
-        workDayBug.setTurnaroundTimeInWorkingHour(-15);
-        Assert.assertFalse(workDayBug.isValidTurnaroundTime());
+        bug.setTurnaroundTimeInWorkingHour(-15.0f);
+        Assert.assertFalse(bug.isValidTurnaroundTime());
     }
 
-//    public void testIfCalculateDueDateGivenInvalidArgs(){
-//        workDayBug.calculateDueDate();
-//    }
+    @Test(expected = IllegalArgumentException.class)
+    public void testIfCalculateDueDateGivenInvalidTurnaroundTime() {
+        bug.calculateDueDate(LocalDateTime.parse("2018-06-01 11:11", TIME_PATTERN), 0.0f);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testIfCalculateDueDateGivenInvalidTime() {
+        bug.calculateDueDate(LocalDateTime.parse("2018-05-26 11:11", TIME_PATTERN), 2.0f);
+    }
 }
