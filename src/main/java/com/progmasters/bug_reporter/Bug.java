@@ -51,7 +51,7 @@ public class Bug {
 
             LocalDateTime temp;
             if (minutes > minutesUntilEndOfWorkingTime) {
-                long plusMinutesOnNextWorkingDay = minutesUntilEndOfWorkingTime - minutes;
+                long plusMinutesOnNextWorkingDay = minutes - minutesUntilEndOfWorkingTime;
                 if (this.notificationTime.getDayOfWeek().getValue() == 5) {
                     temp = LocalDateTime.of(thisDay.plusDays(3 + days), beginningOfWorkingTime.plusMinutes(plusMinutesOnNextWorkingDay));
                 } else {

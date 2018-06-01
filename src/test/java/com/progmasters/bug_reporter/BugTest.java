@@ -82,7 +82,9 @@ public class BugTest {
 
     @Test
     public void testCalculateDueDate() {
-        String result = bug.calculateDueDate(LocalDateTime.parse("2018-05-29 14:12", TIME_PATTERN), 16).format(TIME_PATTERN);
-        Assert.assertEquals("2018-05-31 14:12", result);
+        Assert.assertEquals("2018-05-31 14:12", bug.calculateDueDate(LocalDateTime.parse("2018-05-29 14:12", TIME_PATTERN), 16).format(TIME_PATTERN));
+        Assert.assertEquals("2018-06-04 10:51", bug.calculateDueDate(LocalDateTime.parse("2018-06-01 15:51", TIME_PATTERN), 3).format(TIME_PATTERN));
+        Assert.assertEquals("2018-06-11 10:51", bug.calculateDueDate(LocalDateTime.parse("2018-06-01 15:51", TIME_PATTERN), 43).format(TIME_PATTERN));
+        Assert.assertEquals("2018-06-05 09:06", bug.calculateDueDate(LocalDateTime.parse("2018-06-01 15:51", TIME_PATTERN), 9.25f).format(TIME_PATTERN));
     }
 }
