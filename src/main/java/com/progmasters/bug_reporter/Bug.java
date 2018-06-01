@@ -7,96 +7,71 @@ import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 
 public class Bug {
-    private LocalDateTime dueDate;
-    private LocalDateTime notificationTime;
-    private float turnaroundTimeInWorkingHour;
 
-    public LocalDateTime getDueDate() {
-        return dueDate;
-    }
-
-    public void setDueDate(LocalDateTime dueDate) {
-        this.dueDate = dueDate;
-    }
-
-    public LocalDateTime getNotificationTime() {
-        return notificationTime;
-    }
-
-    public void setNotificationTime(LocalDateTime notificationTime) {
-        this.notificationTime = notificationTime;
-    }
-
-    public float getTurnaroundTimeInWorkingHour() {
-        return turnaroundTimeInWorkingHour;
-    }
-
-    public void setTurnaroundTimeInWorkingHour(float turnaroundTimeInWorkingHour) {
-        this.turnaroundTimeInWorkingHour = turnaroundTimeInWorkingHour;
-    }
+    private static final DayOfWeek FIRST_WORKING_DAY = DayOfWeek.MONDAY;
+    private static final DayOfWeek LAST_WORKING_DAY = DayOfWeek.FRIDAY;
+    private static final LocalTime BEGINNING_OF_WORKING_TIME = LocalTime.of(9, 0);
+    private static final LocalTime END_OF_WORKING_TIME = LocalTime.of(17, 0);
 
     public LocalDateTime calculateDueDate(LocalDateTime notificationTime, float turnaroundTimeInWorkingHour) {
-        this.notificationTime = notificationTime;
-        this.turnaroundTimeInWorkingHour = turnaroundTimeInWorkingHour;
 
-        if (isWorkingDay() && isWorkingHour() && isValidTurnaroundTime()) {
-            int days = getWorkingDays();
-            float workingHour = this.turnaroundTimeInWorkingHour - days * 8;
+        LocalDateTime dueDate;
+
+        if (isWorkingDay(notificationTime) && isWorkingHour(notificationTime) && isValidTurnaroundTime(turnaroundTimeInWorkingHour)) {
+            int days = getWorkingDays(turnaroundTimeInWorkingHour);
+            float workingHour = turnaroundTimeInWorkingHour - days * 8;
             int minutes = (int) (workingHour * 60);
 
-            LocalDate thisDay = this.notificationTime.toLocalDate();
-            LocalTime endOfWorkingTime = LocalTime.of(17, 0);
-            LocalTime beginningOfWorkingTime = LocalTime.of(9, 0);
-            long minutesUntilEndOfWorkingTime = this.notificationTime.until(LocalDateTime.of(thisDay, endOfWorkingTime), ChronoUnit.MINUTES);
+            LocalDate thisDay = notificationTime.toLocalDate();
 
-            LocalDateTime temp;
+            long minutesUntilEndOfWorkingTime = notificationTime.until(LocalDateTime.of(thisDay, END_OF_WORKING_TIME), ChronoUnit.MINUTES);
+
+            LocalDateTime tempDueDate;
             if (minutes > minutesUntilEndOfWorkingTime) {
                 long plusMinutesOnNextWorkingDay = minutes - minutesUntilEndOfWorkingTime;
-                if (this.notificationTime.getDayOfWeek().getValue() == 5) {
-                    temp = LocalDateTime.of(thisDay.plusDays(3 + days), beginningOfWorkingTime.plusMinutes(plusMinutesOnNextWorkingDay));
+                if (notificationTime.getDayOfWeek().getValue() == LAST_WORKING_DAY.getValue()) {
+                    tempDueDate = LocalDateTime.of(thisDay.plusDays(3 + days), BEGINNING_OF_WORKING_TIME.plusMinutes(plusMinutesOnNextWorkingDay));
                 } else {
-                    temp = LocalDateTime.of(thisDay.plusDays(1 + days), beginningOfWorkingTime.plusMinutes(plusMinutesOnNextWorkingDay));
+                    tempDueDate = LocalDateTime.of(thisDay.plusDays(1 + days), BEGINNING_OF_WORKING_TIME.plusMinutes(plusMinutesOnNextWorkingDay));
                 }
             } else {
-                temp = this.notificationTime.plusMinutes(minutes).plusDays(days);
+                tempDueDate = notificationTime.plusMinutes(minutes).plusDays(days);
             }
 
-            if (temp.getDayOfWeek().getValue() == 6) {
-                this.dueDate = temp.plusDays(2);
-            } else if (temp.getDayOfWeek().getValue() == 7) {
-                this.dueDate = temp.plusDays(1);
+            if (tempDueDate.getDayOfWeek().getValue() > LAST_WORKING_DAY.getValue()) {
+                int plusDays = 8 - tempDueDate.getDayOfWeek().getValue();
+                dueDate = tempDueDate.plusDays(plusDays);
             } else {
-                this.dueDate = temp;
+                dueDate = tempDueDate;
             }
 
         } else {
             throw new IllegalArgumentException();
         }
 
-        return this.dueDate;
+        return dueDate;
     }
 
-    public boolean isWorkingDay() {
-        DayOfWeek day = notificationTime.getDayOfWeek();
-        int numericValueOfDay = day.getValue();
+    boolean isWorkingDay(LocalDateTime dateTime) {
+        int numericValueOfDay = dateTime.getDayOfWeek().getValue();
 
-        return (numericValueOfDay >= 1 && numericValueOfDay <= 5);
+        return (numericValueOfDay >= FIRST_WORKING_DAY.getValue() && numericValueOfDay <= LAST_WORKING_DAY.getValue());
     }
 
-    public boolean isWorkingHour() {
-        int hour = notificationTime.getHour();
+    boolean isWorkingHour(LocalDateTime dateTime) {
+        LocalTime time = dateTime.toLocalTime();
 
-        return (hour >= 9 && hour < 16);
+        return ((time.isAfter(BEGINNING_OF_WORKING_TIME) || time.equals(BEGINNING_OF_WORKING_TIME)) && time.isBefore(END_OF_WORKING_TIME));
     }
 
-    public boolean isValidTurnaroundTime() {
+    boolean isValidTurnaroundTime(float turnaroundTimeInWorkingHour) {
         return (turnaroundTimeInWorkingHour > 0);
     }
 
-    public int getWorkingDays() {
+    int getWorkingDays(float turnaroundTimeInWorkingHour) {
         int turnaroundTimeInWorkingDays = 0;
-        if (this.turnaroundTimeInWorkingHour > 8) {
-            turnaroundTimeInWorkingDays = (int) this.turnaroundTimeInWorkingHour / 8;
+        if (turnaroundTimeInWorkingHour > 8) {
+            turnaroundTimeInWorkingDays = (int) turnaroundTimeInWorkingHour / 8;
         }
 
         return turnaroundTimeInWorkingDays;
